@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id
+  name            String
+  email           String    @unique
+  emailVerified   Boolean   @default(false)
+  image           String?
+  activeCompanyId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  company  Company?
+  sessions  Session[]
+  accounts  Account[]
+  companies Company[]
 }
 
 model Session {
@@ -67,10 +68,10 @@ model Verification {
 
 model Company {
   id                    String    @id @default(cuid())
-  userId                String    @unique
+  userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                  String
-  email                 String    @unique
+  email                 String
   logoPath              String?
   address               String?
   stripeSecretKey       String?
@@ -82,6 +83,8 @@ model Company {
   invoices      Invoice[]
   subscriptions Subscription[]
   contracts     Contract[]
+
+  @@index([userId])
 }
 
 model Client {

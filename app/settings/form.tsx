@@ -16,8 +16,8 @@ export default function SettingsForm({
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    const res = await fetch("/api/onboarding", {
-      method: "POST",
+    const res = await fetch("/api/companies/active", {
+      method: "PATCH",
       body: new FormData(e.currentTarget),
     });
     setBusy(false);

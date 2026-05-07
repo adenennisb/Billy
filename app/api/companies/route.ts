@@ -29,31 +29,30 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ??
       null;
 
-    const existing = await db.company.findUnique({ where: { userId: user.id } });
-
-    if (!existing && !acceptTos) {
+    const existingCount = await db.company.count({ where: { userId: user.id } });
+    if (existingCount === 0 && !acceptTos) {
       return NextResponse.json(
         { error: "You must accept the Terms of Service." },
         { status: 400 },
       );
     }
 
-    const company = existing
-      ? await db.company.update({
-          where: { id: existing.id },
-          data: { name, email, address, ...(logoPath ? { logoPath } : {}) },
-        })
-      : await db.company.create({
-          data: {
-            userId: user.id,
-            name,
-            email,
-            address,
-            logoPath,
-            tosAcceptedAt: new Date(),
-            tosAcceptedIp: ip,
-          },
-        });
+    const company = await db.company.create({
+      data: {
+        userId: user.id,
+        name,
+        email,
+        address,
+        logoPath,
+        tosAcceptedAt: existingCount === 0 ? new Date() : undefined,
+        tosAcceptedIp: existingCount === 0 ? ip : undefined,
+      },
+    });
+
+    await db.user.update({
+      where: { id: user.id },
+      data: { activeCompanyId: company.id },
+    });
 
     return NextResponse.json({ id: company.id });
   } catch (err) {
