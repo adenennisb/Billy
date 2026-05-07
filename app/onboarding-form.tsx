@@ -45,8 +45,7 @@ export default function OnboardingForm({ defaultEmail }: { defaultEmail?: string
           I agree to the{" "}
           <a href="/legal/terms" target="_blank" className="underline">Terms of Service</a>,{" "}
           <a href="/legal/privacy" target="_blank" className="underline">Privacy Policy</a>, and{" "}
-          <a href="/legal/esign" target="_blank" className="underline">E-Sign Disclosure</a>. I
-          understand Billy charges a $5 platform fee per paid invoice.
+          <a href="/legal/esign" target="_blank" className="underline">E-Sign Disclosure</a>.
         </span>
       </label>
       {error && <p className="text-sm text-red-600">{error}</p>}

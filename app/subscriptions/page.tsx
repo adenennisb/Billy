@@ -26,9 +26,9 @@ export default async function SubscriptionsPage() {
           </Link>
         </div>
 
-        {!company.stripeChargesEnabled && (
+        {!company.stripeSecretKey && (
           <div className="rounded border bg-amber-50 text-amber-900 text-sm p-3 mb-4">
-            Connect Stripe in <Link href="/settings" className="underline">Settings</Link> to
+            Add a Stripe key in <Link href="/settings" className="underline">Settings</Link> to
             run real recurring billing. Until then subscriptions are saved locally only.
           </div>
         )}
@@ -66,10 +66,6 @@ export default async function SubscriptionsPage() {
           </table>
         )}
 
-        <p className="text-xs text-gray-500 mt-6">
-          Billy collects $5 per billing period via Stripe&apos;s <code>application_fee_percent</code>,
-          calibrated to the plan amount when the subscription is created.
-        </p>
       </main>
     </>
   );

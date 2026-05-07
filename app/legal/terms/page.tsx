@@ -20,24 +20,20 @@ export default function TermsPage() {
         or accountant.
       </p>
 
-      <h2 className="text-lg font-semibold mt-6">2. Payments and platform fee</h2>
+      <h2 className="text-lg font-semibold mt-6">2. Payments</h2>
       <p>
-        Payment processing is provided by Stripe, Inc. through Stripe Connect. To accept
-        payments you must onboard a Stripe account through Billy and accept the{" "}
-        <a href="https://stripe.com/legal/connect-account" target="_blank" rel="noreferrer" className="underline">
-          Stripe Connected Account Agreement
-        </a>{" "}
-        and the{" "}
+        To send invoices or run subscriptions through Billy you can connect your own Stripe
+        account by providing a Stripe API key in Settings. Billy uses that key to create
+        Stripe customers, invoices, and subscriptions on your behalf. You are the merchant
+        of record for all transactions and your relationship with Stripe is governed by the{" "}
         <a href="https://stripe.com/legal" target="_blank" rel="noreferrer" className="underline">
           Stripe Services Agreement
-        </a>. You are the merchant of record for all transactions you process through Billy.
+        </a>. Stripe charges its standard processing fees, deducted from your payouts. Billy
+        does not currently charge a platform fee.
       </p>
       <p>
-        For each successful invoice or subscription charge processed through Billy, Billy
-        collects a flat platform fee of <strong>USD $5.00</strong> (the "Platform Fee") via
-        Stripe's <code>application_fee</code> mechanism. The Platform Fee is in addition to
-        Stripe's processing fees, which are charged separately by Stripe and deducted from
-        your payout. Billy may change the Platform Fee on 30 days' notice.
+        You may also use Billy without Stripe — invoices can be printed or saved as PDFs and
+        shared with your clients directly.
       </p>
 
       <h2 className="text-lg font-semibold mt-6">3. Your account and content</h2>
@@ -89,11 +85,9 @@ export default function TermsPage() {
       <h2 className="text-lg font-semibold mt-6">8. Limitation of liability</h2>
       <p>
         TO THE MAXIMUM EXTENT PERMITTED BY LAW, BILLY'S AGGREGATE LIABILITY FOR ANY CLAIMS
-        ARISING OUT OF OR RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE
-        TOTAL PLATFORM FEES YOU PAID TO BILLY IN THE 12 MONTHS PRECEDING THE EVENT GIVING
-        RISE TO THE CLAIM, OR (B) USD $100. IN NO EVENT WILL BILLY BE LIABLE FOR INDIRECT,
-        INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, OR FOR LOSS OF PROFITS, REVENUE, DATA,
-        OR GOODWILL.
+        ARISING OUT OF OR RELATING TO THE SERVICE WILL NOT EXCEED USD $100. IN NO EVENT WILL
+        BILLY BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, OR FOR
+        LOSS OF PROFITS, REVENUE, DATA, OR GOODWILL.
       </p>
 
       <h2 className="text-lg font-semibold mt-6">9. Indemnification</h2>

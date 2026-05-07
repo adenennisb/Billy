@@ -119,17 +119,9 @@ export default function InvoiceForm() {
       </section>
 
       <div className="rounded border p-4 bg-gray-50 text-sm space-y-1">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
+        <div className="flex justify-between font-semibold">
+          <span>Total</span>
           <span>${total.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-gray-600">
-          <span>Billy platform fee</span>
-          <span>$5.00</span>
-        </div>
-        <div className="flex justify-between font-semibold border-t pt-1 mt-1">
-          <span>Client pays</span>
-          <span>${(total + 5).toFixed(2)}</span>
         </div>
       </div>
 

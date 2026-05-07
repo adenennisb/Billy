@@ -73,9 +73,7 @@ model Company {
   email                 String    @unique
   logoPath              String?
   address               String?
-  stripeAccountId       String?
-  stripeChargesEnabled  Boolean   @default(false)
-  stripePayoutsEnabled  Boolean   @default(false)
+  stripeSecretKey       String?
   tosAcceptedAt         DateTime?
   tosAcceptedIp         String?
   createdAt             DateTime  @default(now())
@@ -114,8 +112,8 @@ model Invoice {
   notes                 String?
   stripeInvoiceId       String?
   stripeInvoiceUrl      String?
+  stripeInvoicePdfUrl   String?
   stripePaymentIntentId String?
-  platformFeeCents      Int       @default(500)
   publicToken           String    @unique @default(cuid())
   createdAt             DateTime  @default(now())
 

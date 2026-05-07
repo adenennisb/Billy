@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireCompany } from "@/lib/require-company";
-import { stripe } from "@/lib/stripe";
+import { stripeFor } from "@/lib/stripe";
 
 export async function POST(
   _req: Request,
@@ -14,11 +14,10 @@ export async function POST(
   });
   if (!sub) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (stripe && sub.stripeSubscriptionId && company.stripeAccountId) {
+  const stripe = stripeFor(company.stripeSecretKey);
+  if (stripe && sub.stripeSubscriptionId) {
     try {
-      await stripe.subscriptions.cancel(sub.stripeSubscriptionId, undefined, {
-        stripeAccount: company.stripeAccountId,
-      });
+      await stripe.subscriptions.cancel(sub.stripeSubscriptionId);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "stripe error";
       return NextResponse.json({ error: msg }, { status: 400 });

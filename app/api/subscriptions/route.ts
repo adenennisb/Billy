@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireCompany } from "@/lib/require-company";
-import { stripe, PLATFORM_FEE_CENTS } from "@/lib/stripe";
+import { stripeFor } from "@/lib/stripe";
 
 const Schema = z.object({
   clientName: z.string().min(1),
@@ -30,19 +30,18 @@ export async function POST(req: NextRequest) {
         data: { companyId: company.id, name: data.clientName, email },
       });
 
+  const stripe = stripeFor(company.stripeSecretKey);
   let stripeSubscriptionId: string | null = null;
   let stripePriceId: string | null = null;
   let status = "active";
 
-  if (stripe && company.stripeAccountId && company.stripeChargesEnabled) {
-    const acct = company.stripeAccountId;
-
+  if (stripe) {
     let stripeCustomerId = client.stripeCustomerId;
     if (!stripeCustomerId) {
-      const customer = await stripe.customers.create(
-        { email: client.email, name: client.name },
-        { stripeAccount: acct },
-      );
+      const customer = await stripe.customers.create({
+        email: client.email,
+        name: client.name,
+      });
       stripeCustomerId = customer.id;
       await db.client.update({
         where: { id: client.id },
@@ -50,40 +49,25 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const product = await stripe.products.create(
-      { name: data.name, metadata: { billyCompanyId: company.id, billyClientId: client.id } },
-      { stripeAccount: acct },
-    );
-    const price = await stripe.prices.create(
-      {
-        product: product.id,
-        unit_amount: data.amountCents,
-        currency: "usd",
-        recurring: { interval: data.interval },
-      },
-      { stripeAccount: acct },
-    );
+    const product = await stripe.products.create({
+      name: data.name,
+      metadata: { billyCompanyId: company.id, billyClientId: client.id },
+    });
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: data.amountCents,
+      currency: "usd",
+      recurring: { interval: data.interval },
+    });
     stripePriceId = price.id;
 
-    // $5 fee per period, expressed as a percentage of the subscription amount
-    // (Stripe Connect supports application_fee_percent for recurring).
-    const feePct = Math.min(
-      100,
-      Math.max(0.01, (PLATFORM_FEE_CENTS / data.amountCents) * 100),
-    );
-    const applicationFeePercent = Math.round(feePct * 100) / 100;
-
-    const sub = await stripe.subscriptions.create(
-      {
-        customer: stripeCustomerId,
-        items: [{ price: price.id }],
-        application_fee_percent: applicationFeePercent,
-        collection_method: "send_invoice",
-        days_until_due: 7,
-        metadata: { billyCompanyId: company.id, billyClientId: client.id },
-      },
-      { stripeAccount: acct },
-    );
+    const sub = await stripe.subscriptions.create({
+      customer: stripeCustomerId,
+      items: [{ price: price.id }],
+      collection_method: "send_invoice",
+      days_until_due: 7,
+      metadata: { billyCompanyId: company.id, billyClientId: client.id },
+    });
     stripeSubscriptionId = sub.id;
     status = sub.status;
   }

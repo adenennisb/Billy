@@ -1,7 +1,6 @@
 import Stripe from "stripe";
 
-const key = process.env.STRIPE_SECRET_KEY;
-
-export const stripe = key ? new Stripe(key) : null;
-
-export const PLATFORM_FEE_CENTS = 500;
+export function stripeFor(secretKey: string | null | undefined): Stripe | null {
+  if (!secretKey) return null;
+  return new Stripe(secretKey);
+}

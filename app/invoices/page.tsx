@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireCompany } from "@/lib/require-company";
 import { db } from "@/lib/db";
 import Nav from "../components/Nav";
-import SendButton from "./send-button";
+import InvoiceActions from "./invoice-actions";
 
 export default async function InvoicesPage() {
   const company = await requireCompany();
@@ -11,6 +11,7 @@ export default async function InvoicesPage() {
     include: { client: true, items: true },
     orderBy: { createdAt: "desc" },
   });
+  const stripeReady = !!company.stripeSecretKey;
 
   return (
     <>
@@ -26,10 +27,11 @@ export default async function InvoicesPage() {
           </Link>
         </div>
 
-        {!company.stripeChargesEnabled && (
+        {!stripeReady && (
           <div className="rounded border bg-amber-50 text-amber-900 text-sm p-3 mb-4">
-            Connect Stripe in <Link href="/settings" className="underline">Settings</Link> to send
-            invoices and collect payments.
+            No Stripe key set. You can still create and print invoices —{" "}
+            <Link href="/settings" className="underline">add a Stripe key</Link> to send and
+            collect payment automatically.
           </div>
         )}
 
@@ -54,28 +56,21 @@ export default async function InvoicesPage() {
                   0,
                 );
                 return (
-                  <tr key={inv.id} className="border-b">
+                  <tr key={inv.id} className="border-b align-top">
                     <td className="py-2 font-mono">{inv.number}</td>
                     <td>{inv.client.name}</td>
                     <td>${(total / 100).toFixed(2)}</td>
                     <td>{inv.status}</td>
                     <td>{inv.createdAt.toLocaleDateString()}</td>
-                    <td className="text-right">
-                      {inv.stripeInvoiceUrl ? (
-                        <a
-                          href={inv.stripeInvoiceUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs underline"
-                        >
-                          View on Stripe ↗
-                        </a>
-                      ) : inv.status === "draft" ? (
-                        <SendButton
-                          invoiceId={inv.id}
-                          disabled={!company.stripeChargesEnabled}
-                        />
-                      ) : null}
+                    <td>
+                      <InvoiceActions
+                        invoiceId={inv.id}
+                        status={inv.status}
+                        stripeReady={stripeReady}
+                        sentToStripe={!!inv.stripeInvoiceId}
+                        hostedUrl={inv.stripeInvoiceUrl}
+                        pdfUrl={inv.stripeInvoicePdfUrl}
+                      />
                     </td>
                   </tr>
                 );
