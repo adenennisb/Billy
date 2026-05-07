@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  company  Company?
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
+}
+
+model Company {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String
+  email                 String    @unique
+  logoPath              String?
+  address               String?
+  stripeAccountId       String?
+  stripeChargesEnabled  Boolean   @default(false)
+  stripePayoutsEnabled  Boolean   @default(false)
+  tosAcceptedAt         DateTime?
+  tosAcceptedIp         String?
+  createdAt             DateTime  @default(now())
+
+  clients       Client[]
+  invoices      Invoice[]
+  subscriptions Subscription[]
+  contracts     Contract[]
+}
+
+model Client {
+  id               String   @id @default(cuid())
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name             String
+  email            String
+  address          String?
+  stripeCustomerId String?
+  createdAt        DateTime @default(now())
+
+  invoices      Invoice[]
+  subscriptions Subscription[]
+  contracts     Contract[]
+}
+
+model Invoice {
+  id                    String    @id @default(cuid())
+  companyId             String
+  company               Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId              String
+  client                Client    @relation(fields: [clientId], references: [id])
+  number                String
+  status                String    @default("draft")
+  currency              String    @default("usd")
+  dueDate               DateTime?
+  notes                 String?
+  stripeInvoiceId       String?
+  stripeInvoiceUrl      String?
+  stripePaymentIntentId String?
+  platformFeeCents      Int       @default(500)
+  publicToken           String    @unique @default(cuid())
+  createdAt             DateTime  @default(now())
+
+  items InvoiceItem[]
+}
+
+model InvoiceItem {
+  id             String  @id @default(cuid())
+  invoiceId      String
+  invoice        Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description    String
+  quantity       Int     @default(1)
+  unitPriceCents Int
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  companyId            String
+  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId             String
+  client               Client   @relation(fields: [clientId], references: [id])
+  name                 String
+  amountCents          Int
+  currency             String   @default("usd")
+  interval             String   @default("month")
+  status               String   @default("active")
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  createdAt            DateTime @default(now())
+}
+
+model Contract {
+  id         String    @id @default(cuid())
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client    @relation(fields: [clientId], references: [id])
+  title      String
+  template   String
+  body       String
+  status        String    @default("draft")
+  signedName    String?
+  signedAt      DateTime?
+  signedIp      String?
+  signedUa      String?
+  signatureData String?
+  publicToken   String    @unique @default(cuid())
+  createdAt     DateTime  @default(now())
+}
