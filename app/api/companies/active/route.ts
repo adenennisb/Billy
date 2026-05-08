@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
     }
 
-    let logoPath: string | undefined;
+    let logoPath: string | null = null;
     if (logo instanceof File && logo.size > 0) {
       logoPath = await saveLogo(logo);
     }

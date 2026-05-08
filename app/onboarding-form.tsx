@@ -45,7 +45,10 @@ export default function OnboardingForm({
           accept="image/png,image/jpeg,image/svg+xml,image/webp"
           className="block w-full text-sm"
         />
-        <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG, or WebP. Max 2 MB.</p>
+        <p className="text-xs text-gray-500 mt-1">
+          PNG, JPG, SVG, or WebP. Max 2 MB. Logo upload is disabled in this hosted preview —
+          works locally; cloud storage is on the roadmap.
+        </p>
       </div>
       {showTos && (
         <label className="flex items-start gap-2 text-sm">

@@ -6,9 +6,17 @@ const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
 
-export async function saveLogo(file: File): Promise<string> {
+// Vercel's serverless functions run on a read-only filesystem, so we can't
+// persist uploads there. Until we wire up Vercel Blob, accept the file but
+// store nothing (returning null tells the caller to skip setting logoPath).
+function isReadOnlyFs() {
+  return process.env.VERCEL === "1" || process.env.VERCEL_ENV !== undefined;
+}
+
+export async function saveLogo(file: File): Promise<string | null> {
   if (!ALLOWED.has(file.type)) throw new Error("Unsupported image type");
   if (file.size > MAX_BYTES) throw new Error("Logo must be 2 MB or smaller");
+  if (isReadOnlyFs()) return null;
   await mkdir(UPLOAD_DIR, { recursive: true });
   const ext = extname(file.name) || mimeToExt(file.type);
   const filename = `${randomBytes(8).toString("hex")}${ext}`;
